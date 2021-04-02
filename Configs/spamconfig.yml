@@ -4,7 +4,7 @@
 muted_role: Muted
 
 # The role which antispam will ignore
-ignored_role: Ignored
+ignored_role: 'Ignored'
 
 # How long a user is muted for (in seconds - 300 = 5 mins)
 muted_time: 300
@@ -13,7 +13,7 @@ muted_time: 300
 messages_for_warning: 5
 
 # How many messages before being muted - Recommended: 8-12
-messages_for_mute: 10
+messages_for_mute: 6
 
 # Clear Warnings -- WARNING: I RECOMMEND CHANGING THIS TO SOMETHING THAT WILL WORK WELL - THE HIGHER THE MESSAGES_FOR_WARNING & MESSAGES_FOR_MUTE IS, THE HIGHER THIS INT SHOULD BE! (CALCULATED IN: SECONDS)
 # Recommended 10-15
