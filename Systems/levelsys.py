@@ -1,5 +1,3 @@
-# Version 3.6
-
 # Imports
 import discord
 from discord.ext import commands
@@ -62,6 +60,8 @@ class levelsys(commands.Cog):
                         lvl += 1
                     xp -= ((config['xp_per_level'] / 2 * ((lvl - 1) ** 2)) + (config['xp_per_level'] / 2 * (lvl - 1)))
                     if xp == 0:
+                        member = ctx.author
+                        channel = self.client.get_channel(config['level_message_channel'])
                         levelling.update_one({"id": ctx.author.id}, {"$set": {"rank": + config['xp_per_message']}})
                         embed2 = discord.Embed(title=f":tada: **LEVEL UP!**",
                                                description=f"{ctx.author.mention} just reached Level: **{lvl}**",
@@ -73,7 +73,7 @@ class levelsys(commands.Cog):
                         embed2.add_field(name="Next Level:",
                                          value=f"``{int(config['xp_per_level'] * 2 * ((1 / 2) * lvl))}xp``")
                         embed2.set_thumbnail(url=ctx.author.avatar_url)
-                        await ctx.channel.send(embed=embed2)
+                        await channel.send(embed=embed2)
                         for i in range(len(level_roles)):
                             if lvl == level_roles_num[i]:
                                 await ctx.author.add_roles(
@@ -83,7 +83,7 @@ class levelsys(commands.Cog):
                                                       colour=config['embed_colour'])
                                 print(f"User: {ctx.author} | Unlocked Role: {level_roles[i]}")
                                 embed.set_thumbnail(url=ctx.author.avatar_url)
-                                await ctx.channel.send(embed=embed)
+                                await channel.send(embed=embed)
 
     # Rank Command
     @commands.command(aliases=config['rank_alias'])
@@ -162,7 +162,7 @@ class levelsys(commands.Cog):
                     tempxp = x["xp"]
                     templvl = x["rank"]
                     embed.add_field(name=f"#{i}: {temp.name}",
-                                    value=f"Level: ``{templvl}``\nTotal XP: ``{tempxp}``\n", inline=True)
+                                    value=f"Level: `{templvl}`\nTotal XP: `{tempxp}`\n", inline=True)
                     embed.set_thumbnail(url=config['leaderboard_image'])
                     i += 1
                 except:
@@ -177,7 +177,7 @@ class levelsys(commands.Cog):
     async def reset(self, ctx, user=None):
         if user:
             userget = user.replace('!', '')
-            levelling.update_one({"tag": userget}, {"$set": {"rank": 1, "xp": config['xp_per_message']}})
+            levelling.update_one({"tag": userget}, {"$set": {"rank": 1, "xp": 0}})
             embed = discord.Embed(title=f":white_check_mark: RESET USER", description=f"Reset User: {user}",
                                   colour=config['success_embed_colour'])
             print(f"{userget} was reset!")
@@ -185,7 +185,7 @@ class levelsys(commands.Cog):
         else:
             prefix = config['Prefix']
             embed2 = discord.Embed(title=f":x: RESET USER FAILED",
-                                   description=f"Couldn't Reset! The User: ``{user}`` doesn't exist or you didn't mention a user!",
+                                   description=f"Couldn't Reset! The User: `{user}` doesn't exist or you didn't mention a user!",
                                    colour=config['error_embed_colour'])
             embed2.add_field(name="Example:", value=f"``{prefix}reset`` {ctx.message.author.mention}")
             print("Resetting Failed. A user was either not declared or doesn't exist!")
@@ -198,25 +198,42 @@ class levelsys(commands.Cog):
             prefix = config['Prefix']
             top = config['leaderboard_amount']
             xp = config['xp_per_message']
-
-            embed = discord.Embed(title="**HELP PAGE | :book:**",
-                                  description=f"Commands & Information. **Prefix**: ``{prefix}``",
-                                  colour=config["embed_colour"])
-            embed.add_field(name="Leaderboard:", value=f"``{prefix}Leaderboard`` *Shows the Top: **{top}** Users*")
-            embed.add_field(name="Rank:", value=f"``{prefix}Rank`` *Shows the Stats Menu for the User*")
-            embed.add_field(name="Reset:",
-                            value=f"``{prefix}Reset <user>`` *Sets the user back to: ``{config['xp_per_message']}xp`` & Level: ``1``*")
-            embed.add_field(name="Background:",
-                            value=f"``{prefix}background <link>`` *Changes the background of your rank card if ``image_mode`` is enabled*")
-            embed.add_field(name="Circlepic:",
-                            value=f"``{prefix}Circlepic <True|False>`` *Changes a users image to a circle if ``image_mode`` is enabled*")
-            embed.add_field(name="Update:",
-                            value=f"``{prefix}Update <user>`` *Updates any missing database fields for a user when updating to a newer version*")
-            embed.add_field(name="XP Colour:",
-                            value=f"``{prefix}xpcolour <hex code>`` *Changes the colour of the xp bar if ``image_mode`` is enabled*")
-            embed.set_footer(text=f"You will earn {xp}xp per message | XP Per Level Is: {config['xp_per_level']}xp*")
-            embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/812895798496591882/825363205853151252/ML_1.png")
-            await ctx.channel.send(embed=embed)
+            member = ctx.author
+            rank = discord.utils.get(member.guild.roles, name=config['admin_role'])
+            if rank in member.roles:
+                embed = discord.Embed(title="**HELP PAGE | :book:**",
+                                      description=f"Commands & Information. **Prefix**: `{prefix}`",
+                                      colour=config["embed_colour"])
+                embed.add_field(name="Leaderboard:", value=f"`{prefix}Leaderboard` *Shows the Top: **{top}** Users*")
+                embed.add_field(name="Rank:", value=f"`{prefix}Rank` *Shows the Stats Menu for the User*")
+                embed.add_field(name="Reset:",
+                                value=f"`{prefix}Reset <user>` *Sets the user back to: `{config['xp_per_message']}xp` & Level: `1`*")
+                embed.add_field(name="Background:",
+                                value=f"`{prefix}background <link>` *Changes the background of your rank card if `image_mode` is enabled*")
+                embed.add_field(name="Circlepic:",
+                                value=f"`{prefix}Circlepic <True|False>` *Changes a users image to a circle if `image_mode` is enabled*")
+                embed.add_field(name="Update:",
+                                value=f"`{prefix}Update <user>` *Updates any missing database fields for a user when updating to a newer version*")
+                embed.add_field(name="XP Colour:",
+                                value=f"`{prefix}xpcolour <hex code>` *Changes the colour of the xp bar if `image_mode` is enabled*")
+                embed.set_footer(text=f"You will earn {xp}xp per message | XP Per Level Is: {config['xp_per_level']}xp*")
+                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/812895798496591882/825363205853151252/ML_1.png")
+                await ctx.channel.send(embed=embed)
+            else:
+                embed = discord.Embed(title="**HELP PAGE | :book:**",
+                                      description=f"Commands & Information. **Prefix**: `{prefix}`",
+                                      colour=config["embed_colour"])
+                embed.add_field(name="Leaderboard:", value=f"`{prefix}Leaderboard` *Shows the Top: **{top}** Users*")
+                embed.add_field(name="Rank:", value=f"`{prefix}Rank` *Shows the Stats Menu for the User*")
+                embed.add_field(name="Circlepic:",
+                                value=f"`{prefix}Circlepic <True|False>` *Changes a users image to a circle if `image_mode` is enabled*")
+                embed.add_field(name="Background:",
+                                value=f"`{prefix}background <link>` *Changes the background of your rank card if `image_mode` is enabled*")
+                embed.add_field(name="XP Colour:",
+                                value=f"`{prefix}xpcolour <hex code>` *Changes the colour of the xp bar if `image_mode` is enabled*")
+                embed.set_footer(text=f"You will earn {xp}xp per message | XP Per Level Is: {config['xp_per_level']}xp*")
+                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/812895798496591882/825363205853151252/ML_1.png")
+                await ctx.channel.send(embed=embed)
 
     @commands.command()
     @commands.has_role(config["admin_role"])
@@ -239,16 +256,16 @@ class levelsys(commands.Cog):
         if value == "True":
             levelling.update_one({"id": ctx.author.id}, {"$set": {"circle": True}})
             embed1 = discord.Embed(title=":white_check_mark: **PROFILE CHANGED!**",
-                                   description="Circle Profile Picture set to: ``True``. Set to ``False`` to return to default.")
+                                   description="Circle Profile Picture set to: `True`. Set to `False` to return to default.")
             await ctx.channel.send(embed=embed1)
         elif value == "False":
             levelling.update_one({"id": ctx.author.id}, {"$set": {"circle": False}})
             embed2 = discord.Embed(title=":white_check_mark: **PROFILE CHANGED!**",
-                                   description="Circle Profile Picture set to: ``False``. Set to ``True`` to change it to a circle.")
+                                   description="Circle Profile Picture set to: `False`. Set to `True` to change it to a circle.")
             await ctx.channel.send(embed=embed2)
         elif value is None:
             embed3 = discord.Embed(title=":x: **SOMETHING WENT WRONG!**",
-                                   description="Please make sure you either typed: ``True`` or ``False``.")
+                                   description="Please make sure you either typed: `True` or `False`.")
             await ctx.channel.send(embed=embed3)
 
     @commands.command()
@@ -262,7 +279,7 @@ class levelsys(commands.Cog):
         levelling.update_one({"id": ctx.author.id}, {"$set": {"xp_colour": f"{colour}"}})
         prefix = config['Prefix']
         embed = discord.Embed(title=":white_check_mark: **XP COLOUR CHANGED!**",
-                              description=f"Your xp colour has been changed. If you type ``{prefix}rank`` and nothing appears, try a new hex code. \n**Example**:\n*#0000FF* = *Blue*")
+                              description=f"Your xp colour has been changed. If you type `{prefix}rank` and nothing appears, try a new hex code. \n**Example**:\n*#0000FF* = *Blue*")
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/812895798496591882/825363205853151252/ML_1.png")
         await ctx.send(embed=embed)
 
@@ -287,4 +304,3 @@ def setup(client):
     client.add_cog(levelsys(client))
 
 # End Of Level System
-1
