@@ -1,5 +1,3 @@
-# Version 3.4
-
 # Imports
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound, MissingRequiredArgument, CommandInvokeError, MissingRole
@@ -31,6 +29,7 @@ async def on_ready():
     config_status = config['bot_status_text']
     config_activity = config['bot_activity']
     activity = discord.Game(name=config['bot_status_text'])
+    print("You're currently running a beta version! -- If you encounter any bugs, let me know.")
     print('------')
     print('Logged In:')
     print(f"Bot Username: {client.user.name}\nBotID: {client.user.id}")
