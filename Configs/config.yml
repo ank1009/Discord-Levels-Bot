@@ -11,6 +11,9 @@ bot_channel: []
 # Array of channels you can earn XP in (*SEPARATED BY COMAS)
 talk_channels: []
 
+# The channel where level up messages will be sent to
+level_message_channel: 
+
 # Sends a message to a specific channel if a new user joins, or an existing user leaves
 join_leave_message: True
 
