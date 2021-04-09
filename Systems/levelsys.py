@@ -1,10 +1,11 @@
 # Imports
+import asyncio
+
 import discord
 from discord.ext import commands
 from pymongo import MongoClient
 from ruamel.yaml import YAML
 import vacefron
-from re import search
 
 # MONGODB SETTINGS *YOU MUST FILL THESE OUT OTHERWISE YOU'LL RUN INTO ISSUES!* - Need Help? Join The Discord Support Server, Found at top of repo.
 cluster = MongoClient("mongodb link here - dont forget to insert password and database name!! and remove the <>")
@@ -14,10 +15,10 @@ levelling = cluster["databasename here"]["collectionsname here"]
 yaml = YAML()
 with open("Configs/config.yml", "r", encoding="utf-8") as file:
     config = yaml.load(file)
+with open("Configs/spamconfig.yml", "r", encoding="utf-8") as file2:
+    spamconfig = yaml.load(file2)
 
 # Some config options which need to be stored here, again, no need for altering.
-bot_channel = config['bot_channel']
-talk_channels = config['talk_channels']
 level_roles = config['level_roles']
 level_roles_num = config['level_roles_num']
 
@@ -31,145 +32,125 @@ class levelsys(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        if ctx.channel.id in config['talk_channels']:
-            stats = levelling.find_one({"id": ctx.author.id})
-            if not ctx.author.bot:
-                if stats is None:
-                    newuser = {"id": ctx.author.id, "tag": ctx.author.mention, "xp": 0, "rank": 1, "background": " ",
-                               "circle": False, "xp_colour": "#ffffff"}
-                    print(f"User: {ctx.author.id} has been added to the database! ")
-                    levelling.insert_one(newuser)
+        stats = levelling.find_one({"id": ctx.author.id})
+        if not ctx.author.bot:
+            if stats is None:
+                newuser = {"id": ctx.author.id, "tag": ctx.author.mention, "xp": 0, "rank": 1, "background": " ", "circle": False, "xp_colour": "#ffffff", "name": f"{ctx.author}", "pfp": f"{ctx.author.avatar_url}"}
+                print(f"User: {ctx.author.id} has been added to the database! ")
+                levelling.insert_one(newuser)
+            else:
+                if config['Prefix'] in ctx.content:
+                    stats = levelling.find_one({"id": ctx.author.id})
+                    xp = stats["xp"]
+                    levelling.update_one({"id": ctx.author.id}, {"$set": {"xp": xp}})
                 else:
-                    if config['Prefix'] in ctx.content:
-                        stats = levelling.find_one({"id": ctx.author.id})
-                        xp = stats["xp"]
+                    user = ctx.author
+                    role = discord.utils.get(ctx.guild.roles, name=config['double_xp'])
+                    if role in user.roles:
+                        xp = stats["xp"] + config['xp_per_message'] * 2
                         levelling.update_one({"id": ctx.author.id}, {"$set": {"xp": xp}})
                     else:
-                        user = ctx.author
-                        role = discord.utils.get(ctx.guild.roles, name=config['double_xp'])
-                        if role in user.roles:
-                            xp = stats["xp"] + config['xp_per_message'] * 2
-                            levelling.update_one({"id": ctx.author.id}, {"$set": {"xp": xp}})
-                        else:
-                            xp = stats["xp"] + config['xp_per_message']
-                            levelling.update_one({"id": ctx.author.id}, {"$set": {"xp": xp}})
-                    lvl = 0
-                    while True:
-                        if xp < ((config['xp_per_level'] / 2 * (lvl ** 2)) + (config['xp_per_level'] / 2 * lvl)):
-                            break
-                        lvl += 1
-                    xp -= ((config['xp_per_level'] / 2 * ((lvl - 1) ** 2)) + (config['xp_per_level'] / 2 * (lvl - 1)))
-                    if xp == 0:
-                        member = ctx.author
-                        channel = self.client.get_channel(config['level_message_channel'])
-                        levelling.update_one({"id": ctx.author.id}, {"$set": {"rank": + config['xp_per_message']}})
-                        embed2 = discord.Embed(title=f":tada: **LEVEL UP!**",
-                                               description=f"{ctx.author.mention} just reached Level: **{lvl}**",
-                                               colour=config['embed_colour'])
-                        xp = stats["xp"]
-                        levelling.update_one({"id": ctx.author.id},
-                                             {"$set": {"rank": lvl, "xp": xp + config['xp_per_message'] * 2}})
-                        print(f"User: {ctx.author} | Leveled UP To: {lvl}")
-                        embed2.add_field(name="Next Level:",
-                                         value=f"``{int(config['xp_per_level'] * 2 * ((1 / 2) * lvl))}xp``")
-                        embed2.set_thumbnail(url=ctx.author.avatar_url)
-                        await channel.send(embed=embed2)
-                        for i in range(len(level_roles)):
-                            if lvl == level_roles_num[i]:
-                                await ctx.author.add_roles(
-                                    discord.utils.get(ctx.author.guild.roles, name=level_roles[i]))
-                                embed = discord.Embed(title=":tada: **ROLE UNLOCKED!**",
-                                                      description=f"{ctx.author.mention} has unlocked the **{level_roles[i]}** role!",
-                                                      colour=config['embed_colour'])
-                                print(f"User: {ctx.author} | Unlocked Role: {level_roles[i]}")
-                                embed.set_thumbnail(url=ctx.author.avatar_url)
-                                await channel.send(embed=embed)
-
-    # Rank Command
-    @commands.command(aliases=config['rank_alias'])
-    async def rank(self, ctx):
-        member = ctx.author
-        if ctx.channel.id in config['bot_channel']:
-            stats = levelling.find_one({"id": ctx.author.id})
-            if stats is None:
-                embed = discord.Embed(description=":x: You haven't sent any messages!",
-                                      colour=config['error_embed_colour'])
-                await ctx.channel.send(embed=embed)
-            else:
-                xp = stats["xp"]
+                        xp = stats["xp"] + config['xp_per_message']
+                        levelling.update_one({"id": ctx.author.id}, {"$set": {"xp": xp}})
+                levelling.update_one({"id": ctx.author.id}, {'$set': {"pfp": f"{ctx.author.avatar_url}", "name": f"{ctx.author}"}})
                 lvl = 0
-                rank = 0
                 while True:
                     if xp < ((config['xp_per_level'] / 2 * (lvl ** 2)) + (config['xp_per_level'] / 2 * lvl)):
                         break
                     lvl += 1
-                xp -= ((config['xp_per_level'] / 2 * (lvl - 1) ** 2) + (config['xp_per_level'] / 2 * (lvl - 1)))
-                boxes = int((xp / (config['xp_per_level'] * 2 * ((1 / 2) * lvl))) * 20)
-                rankings = levelling.find().sort("xp", -1)
-                for x in rankings:
-                    rank += 1
-                    if stats["id"] == x["id"]:
-                        break
-                if config['image_mode'] is False:
-                    embed = discord.Embed(title="{}'s Stats Menu | :bar_chart: ".format(ctx.author.name),
-                                          colour=config['rank_embed_colour'])
-                    embed.add_field(name="Name", value=ctx.author.mention, inline=True)
-                    embed.add_field(name="XP",
-                                    value=f"{xp}/{int(config['xp_per_level'] * 2 * ((1 / 2) * lvl))}",
-                                    inline=True)
-                    embed.add_field(name="Rank", value=f"{rank}/{ctx.guild.member_count}", inline=True)
-                    embed.add_field(name="Progress Bar",
-                                    value=boxes * config['completed_bar'] + (20 - boxes) * config['uncompleted_bar'],
-                                    inline=False)
-                    embed.add_field(name=f"Level", value=f"{lvl}", inline=False)
-                    embed.set_thumbnail(url=ctx.message.author.avatar_url)
-                    await ctx.channel.send(embed=embed)
-                elif config['image_mode'] is True:
-                    background = stats["background"]
-                    circle = stats["circle"]
-                    xpcolour = stats["xp_colour"]
-                    avatar = member.avatar_url_as(format="png")
-                    avatar_size_regex = search("\?size=[0-9]{3,4}$", str(avatar))
-                    avatar = str(avatar).strip(str(avatar_size_regex.group(0))) if avatar_size_regex else str(avatar)
-                    gen_card = await vac_api.rank_card(
-                        username=str(member),
-                        avatar=avatar,
-                        level=int(lvl),
-                        rank=int(rank),
-                        current_xp=int(xp),
-                        next_level_xp=int(config['xp_per_level'] * 2 * ((1 / 2) * lvl)),
-                        previous_level_xp=0,
-                        xp_color=str(xpcolour),
-                        custom_background=str(background),
-                        is_boosting=bool(member.premium_since),
-                        circle_avatar=circle
-                    )
-                    embed = discord.Embed(colour=config['rank_embed_colour'])
-                    embed.set_image(url=gen_card.url)
-                    await ctx.send(embed=embed)
+                xp -= ((config['xp_per_level'] / 2 * ((lvl - 1) ** 2)) + (config['xp_per_level'] / 2 * (lvl - 1)))
+                if xp == 0:
+                    channel = self.client.get_channel(config['level_message_channel'])
+                    levelling.update_one({"id": ctx.author.id}, {"$set": {"rank": + config['xp_per_message']}})
+                    embed2 = discord.Embed(title=f":tada: **LEVEL UP!**",
+                                           description=f"{ctx.author.mention} just reached Level: **{lvl}**",
+                                           colour=config['embed_colour'])
+                    xp = stats["xp"]
+                    levelling.update_one({"id": ctx.author.id}, {"$set": {"rank": lvl, "xp": xp + config['xp_per_message'] * 2}})
+                    print(f"User: {ctx.author} | Leveled UP To: {lvl}")
+                    embed2.add_field(name="Next Level:",
+                                     value=f"``{int(config['xp_per_level'] * 2 * ((1 / 2) * lvl))}xp``")
+                    embed2.set_thumbnail(url=ctx.author.avatar_url)
+                    for i in range(len(level_roles)):
+                        if lvl == level_roles_num[i]:
+                            await ctx.author.add_roles(
+                                discord.utils.get(ctx.author.guild.roles, name=level_roles[i]))
+                            embed2.add_field(name="Role Unlocked:", value=f"`{level_roles[i]}`")
+                            print(f"User: {ctx.author} | Unlocked Role: {level_roles[i]}")
+                            embed2.set_thumbnail(url=ctx.author.avatar_url)
+                            await channel.send(embed=embed2)
+                        else:
+                            await channel.send(embed=embed2)
+
+    # Rank Command
+    @commands.command(aliases=config['rank_alias'])
+    async def rank(self, ctx, member=None):
+        if member is None:
+            user = f"<@!{ctx.author.id}>"
+        else:
+            user = member
+        userget = user.replace('!', '')
+        stats = levelling.find_one({"tag": userget})
+        if stats is None:
+            embed = discord.Embed(description=":x: No Data Found!",
+                                  colour=config['error_embed_colour'])
+            await ctx.channel.send(embed=embed)
+        else:
+            xp = stats["xp"]
+            lvl = 0
+            rank = 0
+            while True:
+                if xp < ((config['xp_per_level'] / 2 * (lvl ** 2)) + (config['xp_per_level'] / 2 * lvl)):
+                    break
+                lvl += 1
+            xp -= ((config['xp_per_level'] / 2 * (lvl - 1) ** 2) + (config['xp_per_level'] / 2 * (lvl - 1)))
+            rankings = levelling.find().sort("xp", -1)
+            for x in rankings:
+                rank += 1
+                if stats["id"] == x["id"]:
+                    break
+            background = stats["background"]
+            circle = stats["circle"]
+            xpcolour = stats["xp_colour"]
+            member = ctx.author
+            gen_card = await vac_api.rank_card(
+                username=str(stats['name']),
+                avatar=stats['pfp'],
+                level=int(lvl),
+                rank=int(rank),
+                current_xp=int(xp),
+                next_level_xp=int(config['xp_per_level'] * 2 * ((1 / 2) * lvl)),
+                previous_level_xp=0,
+                xp_color=str(xpcolour),
+                custom_background=str(background),
+                is_boosting=bool(member.premium_since),
+                circle_avatar=circle
+            )
+            embed = discord.Embed(colour=config['rank_embed_colour'])
+            embed.set_image(url=gen_card.url)
+            await ctx.send(embed=embed)
 
     # Leaderboard Command
     @commands.command(aliases=config['leaderboard_alias'])
     async def leaderboard(self, ctx):
-        if ctx.channel.id in bot_channel:
-            rankings = levelling.find().sort("xp", -1)
-            i = 1
-            con = config['leaderboard_amount']
-            embed = discord.Embed(title=f":trophy: Leaderboard | Top {con}", colour=config['leaderboard_embed_colour'])
-            for x in rankings:
-                try:
-                    temp = ctx.guild.get_member(x["id"])
-                    tempxp = x["xp"]
-                    templvl = x["rank"]
-                    embed.add_field(name=f"#{i}: {temp.name}",
-                                    value=f"Level: `{templvl}`\nTotal XP: `{tempxp}`\n", inline=True)
-                    embed.set_thumbnail(url=config['leaderboard_image'])
-                    i += 1
-                except:
-                    pass
-                if i == config['leaderboard_amount'] + 1:
-                    break
-            await ctx.channel.send(embed=embed)
+        rankings = levelling.find().sort("xp", -1)
+        i = 1
+        con = config['leaderboard_amount']
+        embed = discord.Embed(title=f":trophy: Leaderboard | Top {con}", colour=config['leaderboard_embed_colour'])
+        for x in rankings:
+            try:
+                temp = ctx.guild.get_member(x["id"])
+                tempxp = x["xp"]
+                templvl = x["rank"]
+                embed.add_field(name=f"#{i}: {temp.name}",
+                                value=f"Level: `{templvl}`\nTotal XP: `{tempxp}`\n", inline=True)
+                embed.set_thumbnail(url=config['leaderboard_image'])
+                i += 1
+            except:
+                pass
+            if i == config['leaderboard_amount'] + 1:
+                break
+        await ctx.channel.send(embed=embed)
 
     # Reset Command
     @commands.command()
@@ -197,61 +178,68 @@ class levelsys(commands.Cog):
         if config['help_command'] is True:
             prefix = config['Prefix']
             top = config['leaderboard_amount']
-            xp = config['xp_per_message']
-            member = ctx.author
-            rank = discord.utils.get(member.guild.roles, name=config['admin_role'])
-            if rank in member.roles:
-                embed = discord.Embed(title="**HELP PAGE | :book:**",
-                                      description=f"Commands & Information. **Prefix**: `{prefix}`",
-                                      colour=config["embed_colour"])
-                embed.add_field(name="Leaderboard:", value=f"`{prefix}Leaderboard` *Shows the Top: **{top}** Users*")
-                embed.add_field(name="Rank:", value=f"`{prefix}Rank` *Shows the Stats Menu for the User*")
-                embed.add_field(name="Reset:",
-                                value=f"`{prefix}Reset <user>` *Sets the user back to: `{config['xp_per_message']}xp` & Level: `1`*")
-                embed.add_field(name="Background:",
-                                value=f"`{prefix}background <link>` *Changes the background of your rank card if `image_mode` is enabled*")
-                embed.add_field(name="Circlepic:",
-                                value=f"`{prefix}Circlepic <True|False>` *Changes a users image to a circle if `image_mode` is enabled*")
-                embed.add_field(name="Update:",
-                                value=f"`{prefix}Update <user>` *Updates any missing database fields for a user when updating to a newer version*")
-                embed.add_field(name="XP Colour:",
-                                value=f"`{prefix}xpcolour <hex code>` *Changes the colour of the xp bar if `image_mode` is enabled*")
-                embed.set_footer(text=f"You will earn {xp}xp per message | XP Per Level Is: {config['xp_per_level']}xp*")
-                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/812895798496591882/825363205853151252/ML_1.png")
-                await ctx.channel.send(embed=embed)
-            else:
-                embed = discord.Embed(title="**HELP PAGE | :book:**",
-                                      description=f"Commands & Information. **Prefix**: `{prefix}`",
-                                      colour=config["embed_colour"])
-                embed.add_field(name="Leaderboard:", value=f"`{prefix}Leaderboard` *Shows the Top: **{top}** Users*")
-                embed.add_field(name="Rank:", value=f"`{prefix}Rank` *Shows the Stats Menu for the User*")
-                embed.add_field(name="Circlepic:",
-                                value=f"`{prefix}Circlepic <True|False>` *Changes a users image to a circle if `image_mode` is enabled*")
-                embed.add_field(name="Background:",
-                                value=f"`{prefix}background <link>` *Changes the background of your rank card if `image_mode` is enabled*")
-                embed.add_field(name="XP Colour:",
-                                value=f"`{prefix}xpcolour <hex code>` *Changes the colour of the xp bar if `image_mode` is enabled*")
-                embed.set_footer(text=f"You will earn {xp}xp per message | XP Per Level Is: {config['xp_per_level']}xp*")
-                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/812895798496591882/825363205853151252/ML_1.png")
-                await ctx.channel.send(embed=embed)
+            embed = discord.Embed(title=":book: Help Journal | Home", description=f"Welcome to the Help Journal. My Prefix here is: `{prefix}`\n\nThe Help Journal will give you information on all available commands and any other information.\n\n***REACT BELOW TO SWITCH PAGES*** ")
+            embed2 = discord.Embed(title=":book: Help Journal | Rank", description=f"Command:\n`{prefix}rank or {prefix}rank <@user>`\n\nAbout:\nThe `Rank` command will show the user their current level, server ranking and how much xp you have. Your rank card can be customisable with other commands.\n\n***REACT BELOW TO SWITCH PAGES***")
+            embed3 = discord.Embed(title=":book: Help Journal | Leaderboard", description=f"Command:\n`{prefix}leaderboard`\n\nAbout:\nThe `Leaderboard` command displays the Top {top} users in that server, sorted by XP.\n\n***REACT BELOW TO SWITCH PAGES***")
+            embed4 = discord.Embed(title=":book: Help Journal | Background", description=f"Command:\n`{prefix}background <link>`\n\nAbout:\nThe `Background` command will allow you to change your rank cards background to the image of your choosing.\n\n*Note: Some links may not work! If this is the case, send the image to discord, then copy the media link!*\n\n***REACT BELOW TO SWITCH PAGES***")
+            embed5 = discord.Embed(title=":book: Help Journal | Circle Picture", description=f"Command:\n`{prefix}circlepic <True|False>`\n\nAbout:\nThe `Circlepic` command will allow you to change your rank cards profile picture to be circular if set to `true`.\n\n***REACT BELOW TO SWITCH PAGES***")
+            embed6 = discord.Embed(title=":book: Help Journal | XP Colour", description=f"Command:\n`{prefix}xpcolour <hex code>`\n\nAbout:\nThe `XPColour` command will allow you to change your rank cards xp bar colour to any hex code of your choosing.\n\n***REACT BELOW TO SWITCH PAGES***")
+            embed7 = discord.Embed(title=":book: Help Journal | Reset | Admin", description=f"Command:\n`{prefix}reset <@user>`\n\nAbout:\nThe `Reset` command will allow you to reset any user back to the bottom level. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***", colour=0xc54245)
+            embed8 = discord.Embed(title=":book: Help Journal | Update | Admin", description=f"Command:\n`{prefix}update <@user>`\n\nAbout:\nThe `Update` command will try and fix users database fields when going to a newer version. *Admin Only*\n\n*Note: This may not always work due to certain ways the bot has been built. If so, please do this manually.*\n\n***REACT BELOW TO SWITCH PAGES***", colour=0xc54245)
+            embed9 = discord.Embed(title=":book: Help Journal | Shutdown | Admin", description=f"Command:\n`{prefix}shutdown`\n\nAbout:\nThe `Shutdown` command will cause the bot to turn off and go offline until turned on again. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***", colour=0xc54245)
+            contents = [embed, embed2, embed3, embed4, embed5, embed6, embed7, embed8, embed9]
+            pages = 9
+            cur_page = 1
+            message = await ctx.send(embed=contents[cur_page - 1])
+
+            await message.add_reaction("◀️")
+            await message.add_reaction("▶️")
+
+            def check(reaction, user):
+                return user == ctx.author and str(reaction.emoji) in ["◀️", "▶️"]
+
+            while True:
+                try:
+                    reaction, user = await self.client.wait_for("reaction_add", timeout=30, check=check)
+
+                    if str(reaction.emoji) == "▶️" and cur_page != pages:
+                        cur_page += 1
+                        await message.edit(embed=contents[cur_page - 1])
+                        await message.remove_reaction(reaction, user)
+
+                    elif str(reaction.emoji) == "◀️" and cur_page > 1:
+                        cur_page -= 1
+                        await message.edit(embed=contents[cur_page - 1])
+                        await message.remove_reaction(reaction, user)
+
+                    else:
+                        await message.remove_reaction(reaction, user)
+                except asyncio.TimeoutError:
+                    await message.delete()
+                    break
 
     @commands.command()
     @commands.has_role(config["admin_role"])
-    async def restart(self, ctx):
+    async def shutdown(self, ctx):
         await ctx.message.delete()
-        exit("Restarting..")
+        exit("Shutting Down..")
 
     @commands.command()
-    async def background(self, ctx, link):
+    async def background(self, ctx, link=None):
         await ctx.message.delete()
-        levelling.update_one({"id": ctx.author.id}, {"$set": {"background": f"{link}"}})
-        embed = discord.Embed(title=":white_check_mark: **BACKGROUND CHANGED!**",
-                              description="Your profile background has been set successfully! If your background does not update, please try a new image.")
-        embed.set_thumbnail(url=link)
-        await ctx.channel.send(embed=embed)
+        if link:
+            levelling.update_one({"id": ctx.author.id}, {"$set": {"background": f"{link}"}})
+            embed = discord.Embed(title=":white_check_mark: **BACKGROUND CHANGED!**",
+                                  description="Your profile background has been set successfully! If your background does not update, please try a new image.")
+            embed.set_thumbnail(url=link)
+            await ctx.channel.send(embed=embed)
+        elif link is None:
+            embed3 = discord.Embed(title=":x: **SOMETHING WENT WRONG!**",
+                                   description="Please make sure you entered a link.")
+            await ctx.channel.send(embed=embed3)
 
     @commands.command()
-    async def circlepic(self, ctx, value):
+    async def circlepic(self, ctx, value=None):
         await ctx.message.delete()
         if value == "True":
             levelling.update_one({"id": ctx.author.id}, {"$set": {"circle": True}})
@@ -287,7 +275,8 @@ class levelsys(commands.Cog):
     @commands.has_role(config["admin_role"])
     async def update(self, ctx, user=None):
         if user:
-            levelling.update_one({"id": ctx.author.id}, {"$set": {"background": "", "circle": False, "xp_colour": "#ffffff"}})
+            userget = user.replace('!', '')
+            levelling.update_one({"tag": userget}, {"$set": {"background": "", "circle": False, "xp_colour": "#ffffff"}})
             embed = discord.Embed(title=f":white_check_mark: UPDATED USER", description=f"Updated User: {user}",
                                   colour=config['success_embed_colour'])
             await ctx.send(embed=embed)
