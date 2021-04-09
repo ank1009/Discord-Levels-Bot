@@ -15,7 +15,7 @@ with open("Configs/config.yml", "r", encoding="utf-8") as file:
 client = commands.Bot(command_prefix=config['Prefix'], intents=discord.Intents.all(), case_insensitive=True)
 client.remove_command('help')
 
-sends discord logging files which could potentially be useful for catching errors.
+# sends discord logging files which could potentially be useful for catching errors.
 FORMAT = '[%(asctime)s]:[%(levelname)s]: %(message)s'
 logging.basicConfig(filename='Logs/logs.txt', level=logging.DEBUG, format=FORMAT)
 logging.debug('Started Logging')
