@@ -4,5 +4,5 @@ pip install ruamel.yaml
 pip install pymongo
 pip install dnspython
 python -m pip install vacefron.py -U
-python install requests
+pip install python-dotenv
 pause
