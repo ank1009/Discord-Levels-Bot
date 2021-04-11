@@ -4,11 +4,17 @@ from discord.ext.commands import CommandNotFound, MissingRequiredArgument, Comma
 import discord
 from ruamel.yaml import YAML
 import logging
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Opens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless having issues with ruamel)
 yaml = YAML()
 with open("Configs/config.yml", "r", encoding="utf-8") as file:
     config = yaml.load(file)
+with open("Configs/spamconfig.yml", "r", encoding="utf-8") as file2:
+    spamconfig = yaml.load(file2)
 
 
 # Command Prefix + Removes the default discord.py help command
@@ -88,15 +94,35 @@ async def on_command_error(ctx, error):
         return
     raise error
 
-if config['antispam_system'] is True:
-    logging.info('Checking if anti-spam is enabled')
+logging.info('Checking if anti-spam is enabled')
+if spamconfig['antispam_system'] is True:
     client.load_extension("Systems.spamsys")
     logging.info('Loaded AntiSpam')
+logging.info('Checking if help is enabled')
+if config['help_command'] is True:
+    client.load_extension("Commands.help")
+    logging.info('Loaded Help Command')
 client.load_extension("Systems.levelsys")
 logging.info('Loaded Levelsys')
-
+client.load_extension("Commands.rank")
+logging.info('Loaded Rank Command')
+client.load_extension("Commands.leaderboard")
+logging.info('Loaded Leaderboard Command')
+client.load_extension("Commands.background")
+logging.info('Loaded Background Command')
+client.load_extension("Commands.reset")
+logging.info('Loaded Reset Command')
+client.load_extension("Commands.circlepic")
+logging.info('Loaded Circlepic Command')
+client.load_extension("Commands.xpcolour")
+logging.info('Loaded XPColour Command')
+client.load_extension("Commands.fix")
+logging.info('Loaded Fix Command')
+client.load_extension("Commands.shutdown")
+logging.info('Loaded Shutdown Command')
 
 # Uses the bot token to login, so don't remove this.
-client.run(config['Bot_Token'])
+token = os.getenv("DISCORD_TOKEN")
+client.run(token)
 
 # End Of Main
