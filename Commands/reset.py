@@ -16,11 +16,11 @@ class reset(commands.Cog):
 
     # Reset Command
     @commands.command()
-    @commands.has_role(config["admin_role"])
+    @commands.has_permissions(administrator=True)
     async def reset(self, ctx, user=None):
         if user:
             userget = user.replace('!', '')
-            levelling.delete_one({"tag": userget})
+            levelling.delete_one({"guildid": ctx.guild.id, "tag": userget})
             embed = discord.Embed(title=f":white_check_mark: RESET USER", description=f"Reset User: {user}",
                                   colour=config['success_embed_colour'])
             print(f"{userget} was reset!")
@@ -30,7 +30,7 @@ class reset(commands.Cog):
             embed2 = discord.Embed(title=f":x: RESET USER FAILED",
                                    description=f"Couldn't Reset! The User: `{user}` doesn't exist or you didn't mention a user!",
                                    colour=config['error_embed_colour'])
-            embed2.add_field(name="Example:", value=f"``{prefix}reset`` {ctx.message.author.mention}")
+            embed2.add_field(name="Example:", value=f"`{prefix}reset` {ctx.message.author.mention}")
             print("Resetting Failed. A user was either not declared or doesn't exist!")
             await ctx.send(embed=embed2)
 

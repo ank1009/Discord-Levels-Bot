@@ -21,29 +21,38 @@ class help(commands.Cog):
         if config['help_command'] is True:
             prefix = config['Prefix']
             top = config['leaderboard_amount']
-            embed = discord.Embed(title=":book: Help Journal | Home",
+            home = discord.Embed(title=":book: Help Journal | Home",
                                   description=f"Welcome to the Help Journal. My Prefix here is: `{prefix}`\n\nThe Help Journal will give you information on all available commands and any other information.\n\n***REACT BELOW TO SWITCH PAGES*** ")
-            embed2 = discord.Embed(title=":book: Help Journal | Rank",
+            rank = discord.Embed(title=":book: Help Journal | Rank",
                                    description=f"Command:\n`{prefix}rank or {prefix}rank <@user>`\n\nAbout:\nThe `Rank` command will show the user their current level, server ranking and how much xp you have. Your rank card can be customisable with other commands.\n\n***REACT BELOW TO SWITCH PAGES***")
-            embed3 = discord.Embed(title=":book: Help Journal | Leaderboard",
+            leaderboard = discord.Embed(title=":book: Help Journal | Leaderboard",
                                    description=f"Command:\n`{prefix}leaderboard`\n\nAbout:\nThe `Leaderboard` command displays the Top {top} users in that server, sorted by XP.\n\n***REACT BELOW TO SWITCH PAGES***")
-            embed4 = discord.Embed(title=":book: Help Journal | Background",
+            background = discord.Embed(title=":book: Help Journal | Background",
                                    description=f"Command:\n`{prefix}background <link>`\n\nAbout:\nThe `Background` command will allow you to change your rank cards background to the image of your choosing.\n\n*Note: Some links may not work! If this is the case, send the image to discord, then copy the media link!*\n\n***REACT BELOW TO SWITCH PAGES***")
-            embed5 = discord.Embed(title=":book: Help Journal | Circle Picture",
+            circlepicture = discord.Embed(title=":book: Help Journal | Circle Picture",
                                    description=f"Command:\n`{prefix}circlepic <True|False>`\n\nAbout:\nThe `Circlepic` command will allow you to change your rank cards profile picture to be circular if set to `true`.\n\n***REACT BELOW TO SWITCH PAGES***")
-            embed6 = discord.Embed(title=":book: Help Journal | XP Colour",
+            xpcolour = discord.Embed(title=":book: Help Journal | XP Colour",
                                    description=f"Command:\n`{prefix}xpcolour <hex code>`\n\nAbout:\nThe `XPColour` command will allow you to change your rank cards xp bar colour to any hex code of your choosing.\n\n***REACT BELOW TO SWITCH PAGES***")
-            embed7 = discord.Embed(title=":book: Help Journal | Reset | Admin",
+            reset = discord.Embed(title=":book: Help Journal | Reset | Admin",
                                    description=f"Command:\n`{prefix}reset <@user>`\n\nAbout:\nThe `Reset` command will allow you to reset any user back to the bottom level. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
                                    colour=0xc54245)
-            embed8 = discord.Embed(title=":book: Help Journal | Fix | Admin",
+            fix = discord.Embed(title=":book: Help Journal | Fix | Admin",
                                    description=f"Command:\n`{prefix}fix <@user>`\n\nAbout:\nThe `Fix` command will try and fix users database fields when going to a newer version. *Admin Only*\n\n*Note: This may not always work due to certain ways the bot has been built. If so, please do this manually.*\n\n***REACT BELOW TO SWITCH PAGES***",
                                    colour=0xc54245)
-            embed9 = discord.Embed(title=":book: Help Journal | Shutdown | Admin",
-                                   description=f"Command:\n`{prefix}shutdown`\n\nAbout:\nThe `Shutdown` command will cause the bot to turn off and go offline until turned on again. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+            levelchannel = discord.Embed(title=":book: Help Journal | LevelChannel | Admin",
+                                   description=f"Command:\n`{prefix}levelchannel <channelname>`\n\nAbout:\nThe `Levelchannel` command will let you set the channel where level up messages will send. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
                                    colour=0xc54245)
-            contents = [embed, embed2, embed3, embed4, embed5, embed6, embed7, embed8, embed9]
-            pages = 9
+            doublexp = discord.Embed(title=":book: Help Journal | DoubleXP | Admin",
+                                   description=f"Command:\n`{prefix}doublexp <rolename>`\n\nAbout:\nThe `DoubleXP` command will let you set what role will earn x2 XP *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                   colour=0xc54245)
+            roles = discord.Embed(title=":book: Help Journal | Roles | Admin",
+                                   description=f"Command:\n`{prefix}role <add|remove> <level> <rolename>`\n\nAbout:\nThe `Role` command will let you add/remove roles when a user reaches the set level *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                   colour=0xc54245)
+            xp = discord.Embed(title=":book: Help Journal | ADD/REMOVE XP | Admin",
+                                   description=f"Command:\n`{prefix}<add|remove>xp <amount> <user>`\n\nAbout:\nThe `<add|remove>xp` command will allow you to add or remove xp to a certain user. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                   colour=0xc54245)
+            contents = [home, rank, leaderboard, background, circlepicture, xpcolour, reset, xp, fix, levelchannel, doublexp, roles]
+            pages = 12
             cur_page = 1
             message = await ctx.send(embed=contents[cur_page - 1])
 

@@ -18,7 +18,7 @@ class leaderboard(commands.Cog):
     # Leaderboard Command
     @commands.command(aliases=config['leaderboard_alias'])
     async def leaderboard(self, ctx):
-        rankings = levelling.find().sort("xp", -1)
+        rankings = levelling.find({"guildid": ctx.guild.id}).sort("xp", -1)
         i = 1
         con = config['leaderboard_amount']
         embed = discord.Embed(title=f":trophy: Leaderboard | Top {con}", colour=config['leaderboard_embed_colour'])
