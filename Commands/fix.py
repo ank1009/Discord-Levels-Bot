@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from ruamel.yaml import YAML
 from Systems.levelsys import levelling
-import progressbar
 
 # Reads the config file, no need for changing.
 yaml = YAML()
