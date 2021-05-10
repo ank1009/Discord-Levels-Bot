@@ -51,8 +51,29 @@ class help(commands.Cog):
             xp = discord.Embed(title=":book: Help Journal | ADD/REMOVE XP | Admin",
                                    description=f"Command:\n`{prefix}<add|remove>xp <amount> <user>`\n\nAbout:\nThe `<add|remove>xp` command will allow you to add or remove xp to a certain user. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
                                    colour=0xc54245)
-            contents = [home, rank, leaderboard, background, circlepicture, xpcolour, reset, xp, fix, levelchannel, doublexp, roles]
-            pages = 12
+            antispamstats = discord.Embed(title=":book: Help Journal | ANTISPAM STATS | Admin",
+                               description=f"Command:\n`{prefix}antispamstats`\n\nAbout:\nThe `antispamstats` command will allow you to see the current stats about AntiSpam *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                               colour=0xc54245)
+            antispam = discord.Embed(title=":book: Help Journal | ANTISPAM | Admin",
+                               description=f"Command:\n`{prefix}antispam <enable|disable>`\n\nAbout:\nThe `antispam` command will allow you to enable or disable the Anti-Spam system per server. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                               colour=0xc54245)
+            warningmessages = discord.Embed(title=":book: Help Journal | WARNING MESSAGES | Admin",
+                                     description=f"Command:\n`{prefix}warniningmessages <integer>`\n\nAbout:\nThe `warningmessages` command will allow you to set how many messages to receive a warning from Anti-Spam. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                     colour=0xc54245)
+            mutemessages = discord.Embed(title=":book: Help Journal | MUTE MESSAGES | Admin",
+                                            description=f"Command:\n`{prefix}mutemessages <integer>`\n\nAbout:\nThe `mutemessage` command will allow you to set how many messages to receive a mute from Anti-Spam. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                            colour=0xc54245)
+            mutedrole = discord.Embed(title=":book: Help Journal | MUTED ROLE | Admin",
+                                         description=f"Command:\n`{prefix}mutedrole <role>`\n\nAbout:\nThe `mutedrole` command will allow you to set what role a muted person receives from Anti-Spam. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                         colour=0xc54245)
+            ignoredrole = discord.Embed(title=":book: Help Journal | IGNORED ROLE | Admin",
+                                      description=f"Command:\n`{prefix}ignoredrole <role>`\n\nAbout:\nThe `ignoredrole` command will allow you to set a role that gets ignored by Anti-Spam. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                      colour=0xc54245)
+            mutetime = discord.Embed(title=":book: Help Journal | MUTE TIME | Admin",
+                                        description=f"Command:\n`{prefix}mutetime <seconds>`\n\nAbout:\nThe `mutetime` command will allow you to set how long you get muted for from Anti-Spam. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                        colour=0xc54245)
+            contents = [home, rank, leaderboard, background, circlepicture, xpcolour, reset, xp, fix, levelchannel, doublexp, roles, antispamstats, antispam, warningmessages, mutemessages, mutedrole, ignoredrole, mutetime]
+            pages = 19
             cur_page = 1
             message = await ctx.send(embed=contents[cur_page - 1])
 

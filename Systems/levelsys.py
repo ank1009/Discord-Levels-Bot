@@ -40,20 +40,21 @@ class levelsys(commands.Cog):
         serverstats = levelling.find_one({"server": ctx.guild.id})
         if not ctx.author.bot:
             if serverstats is None:
-                newserver = {"server": ctx.guild.id, "xp_per_message": 10, "double_xp_role": "NA", "level_channel": "private"}
+                member = ctx.author
+                channel = discord.utils.get(member.guild.channels, name="private")
+                await channel.send("> Registering Server..")
+                newserver = {"server": ctx.guild.id, "xp_per_message": 10, "double_xp_role": "NA", "level_channel": "private", "Antispam": False, "mutedRole": "Muted", "mutedTime": 300, "warningMessages": 5, "muteMessages": 6, "ignoredRole": "Ignored"}
                 overwrites = {
                     ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
                     ctx.guild.me: discord.PermissionOverwrite(read_messages=True)
                 }
                 await ctx.guild.create_text_channel('private', overwrites=overwrites)
                 levelling.insert_one(newserver)
-                member = ctx.author
                 serverstat = levelling.find_one({"server": ctx.guild.id})
-                channel = discord.utils.get(member.guild.channels, name=serverstat["level_channel"])
                 prefix = config['Prefix']
-                await channel.send(f"> Hey!\n\n You will only see this message **once**. To change the channel where levelup messages get sent to:\n\n`{prefix}levelchannel <channelname>` -- Please do NOT use the hashtag and enter any -'s!\n\nYou can also set a role which earns 2x XP by doing the following:\n\n`{prefix}doublexp <rolename>`\n\nYou can also add or remove roles after levelling up by doing the following\n\n`{prefix}role <add|remove> <level> <rolename>`\n\nYou can also change how much xp you earn per message by doing:\n\n`{prefix}xppermessage <amount>`\n\nFor help with commands:\n\n`{prefix}help` ")
+                await channel.send(f" Hey!\n\n You will only see this message **once**.\n To change the channel where levelup messages get sent to:\n\n`{prefix}levelchannel <channelname>` -- Please do NOT use the hashtag and enter any -'s!\n\nYou can also set a role which earns 2x XP by doing the following:\n\n`{prefix}doublexp <rolename>`\n\nYou can also add or remove roles after levelling up by doing the following\n\n`{prefix}role <add|remove> <level> <rolename>`\n\nYou can also change how much xp you earn per message by doing:\n\n`{prefix}xppermessage <amount>`\n\nFor help with commands:\n\n`{prefix}help` ")
             if stats is None:
-                newuser = {"guildid": ctx.guild.id, "id": ctx.author.id, "tag": ctx.author.mention, "xp": serverstats["xp_per_message"], "rank": 1, "background": " ", "circle": False, "xp_colour": "#ffffff", "name": f"{ctx.author}", "pfp": f"{ctx.author.avatar_url}"}
+                newuser = {"guildid": ctx.guild.id, "id": ctx.author.id, "tag": ctx.author.mention, "xp": serverstats["xp_per_message"], "rank": 1, "background": " ", "circle": False, "xp_colour": "#ffffff", "name": f"{ctx.author}", "pfp": f"{ctx.author.avatar_url}", "warnings": 0}
                 print(f"User: {ctx.author.id} has been added to the database! ")
                 levelling.insert_one(newuser)
             else:
@@ -76,7 +77,6 @@ class levelsys(commands.Cog):
                         stats = levelling.find_one({"guildid": ctx.guild.id, "id": ctx.author.id})
                         xp = stats["xp"] + serverstats['xp_per_message']
                         levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id}, {"$set": {"xp": xp}})
-                levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id}, {'$set': {"pfp": f"{ctx.author.avatar_url}", "name": f"{ctx.author}"}})
                 lvl = 0
                 while True:
                     if xp < ((config['xp_per_level'] / 2 * (lvl ** 2)) + (config['xp_per_level'] / 2 * lvl)):

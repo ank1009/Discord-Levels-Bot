@@ -42,6 +42,8 @@ class rank(commands.Cog):
                 rank += 1
                 if stats["id"] == x["id"]:
                     break
+            levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id},
+                                 {'$set': {"pfp": f"{ctx.author.avatar_url}", "name": f"{ctx.author}"}})
             stats2 = levelling.find_one({"guildid": ctx.message.guild.id, "tag": userget})
             background = stats2["background"]
             circle = stats2["circle"]

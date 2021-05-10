@@ -62,9 +62,13 @@ async def on_command_error(ctx, error):
     if isinstance(error, MissingRole):
         logging.error('A user has missing roles!')
         return
+    if isinstance(error, PermissionError):
+        logging.error('A user has missing permissions!')
     if isinstance(error, KeyError):
         logging.error('Key Error')
         return
+    if isinstance(error, TypeError):
+        logging.error('Type Error - Probably caused as server was being registered while anti-spam or double-xp tried triggering')
     raise error
 
 logging.info("------------- Loading -------------")
@@ -76,6 +80,10 @@ for fn in listdir("Commands"):
 logging.info(f"Loading Level System")
 client.load_extension("Systems.levelsys")
 logging.info(f"Loaded Level System")
+if spamconfig['antispam_system'] is True:
+    logging.info(f"Loading Anti-Spam System")
+    client.load_extension("Systems.spamsys")
+    logging.info(f"Loaded Anti-Spam System")
 logging.info("------------- Finished Loading -------------")
 
 # Uses the bot token to login, so don't remove this.
