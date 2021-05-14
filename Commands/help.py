@@ -37,7 +37,7 @@ class help(commands.Cog):
                                    description=f"Command:\n`{prefix}reset <@user>`\n\nAbout:\nThe `Reset` command will allow you to reset any user back to the bottom level. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
                                    colour=0xc54245)
             fix = discord.Embed(title=":book: Help Journal | Fix | Admin",
-                                   description=f"Command:\n`{prefix}fix <@user>`\n\nAbout:\nThe `Fix` command will try and fix users database fields when going to a newer version. *Admin Only*\n\n*Note: This may not always work due to certain ways the bot has been built. If so, please do this manually.*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                   description=f"Command:\n`{prefix}fix <users|server|kingdoms>`\n\nAbout:\nThe `Fix` command will try and fix either users, the server you're in or support Kingdoms integration *Admin Only*\n\n*Note: This may not always work due to certain ways the bot has been built. If so, please do this manually.*\n\n***REACT BELOW TO SWITCH PAGES***",
                                    colour=0xc54245)
             levelchannel = discord.Embed(title=":book: Help Journal | LevelChannel | Admin",
                                    description=f"Command:\n`{prefix}levelchannel <channelname>`\n\nAbout:\nThe `Levelchannel` command will let you set the channel where level up messages will send. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
