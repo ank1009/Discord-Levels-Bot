@@ -21,7 +21,7 @@ class fix(commands.Cog):
         if type is None:
             prefix = config['Prefix']
             embed = discord.Embed(title=f":x: ERROR!",
-                                  description=f"You must enter a valid type to fix!\n\n**Example:**\n`{prefix}fix <users|server>`",
+                                  description=f"You must enter a valid type to fix!\n\n**Example:**\n`{prefix}fix <users|server|kingdoms>`",
                                   colour=config['success_embed_colour'])
             await ctx.send(embed=embed)
             return
@@ -45,6 +45,16 @@ class fix(commands.Cog):
             await msg.edit(embed=embed)
             embed = discord.Embed(title=f":white_check_mark: | Fixed Server ", description="Fixing has completed.")
             await msg.edit(embed=embed)
+        elif type == "kingdoms".lower():
+            for member in ctx.guild.members:
+                counter += 1
+                levelling.update_one({"name": f"{member}", "guildid": ctx.guild.id}, {"$set": {"healPotions": 0, "coins": 0}})
+                embed = discord.Embed(title=f":white_check_mark: Fixed User For Kingdoms | {counter}/{ctx.guild.member_count}", description=f"{member}",
+                                      colour=config['success_embed_colour'])
+                await msg.edit(embed=embed)
+            embed = discord.Embed(title=f":white_check_mark: | Fixed Kingdoms | {counter}/{ctx.guild.member_count}", description="Fixing has completed.")
+            await msg.edit(embed=embed)
+
 
 
 
