@@ -41,8 +41,6 @@ class levelsys(commands.Cog):
         if not ctx.author.bot:
             if serverstats is None:
                 member = ctx.author
-                channel = discord.utils.get(member.guild.channels, name="private")
-                await channel.send("> Registering Server..")
                 newserver = {"server": ctx.guild.id, "xp_per_message": 10, "double_xp_role": "NA", "level_channel": "private", "Antispam": False, "mutedRole": "Muted", "mutedTime": 300, "warningMessages": 5, "muteMessages": 6, "ignoredRole": "Ignored"}
                 overwrites = {
                     ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
@@ -52,9 +50,12 @@ class levelsys(commands.Cog):
                 levelling.insert_one(newserver)
                 serverstat = levelling.find_one({"server": ctx.guild.id})
                 prefix = config['Prefix']
+                channel = discord.utils.get(member.guild.channels, name="private")
                 await channel.send(f" Hey!\n\n You will only see this message **once**.\n To change the channel where levelup messages get sent to:\n\n`{prefix}levelchannel <channelname>` -- Please do NOT use the hashtag and enter any -'s!\n\nYou can also set a role which earns 2x XP by doing the following:\n\n`{prefix}doublexp <rolename>`\n\nYou can also add or remove roles after levelling up by doing the following\n\n`{prefix}role <add|remove> <level> <rolename>`\n\nYou can also change how much xp you earn per message by doing:\n\n`{prefix}xppermessage <amount>`\n\nFor help with commands:\n\n`{prefix}help` ")
             if stats is None:
-                newuser = {"guildid": ctx.guild.id, "id": ctx.author.id, "tag": ctx.author.mention, "xp": serverstats["xp_per_message"], "rank": 1, "background": " ", "circle": False, "xp_colour": "#ffffff", "name": f"{ctx.author}", "pfp": f"{ctx.author.avatar_url}", "warnings": 0}
+                user = f"<@!{ctx.author.id}>"
+                userget = user.replace('!', '')
+                newuser = {"guildid": ctx.guild.id, "id": ctx.author.id, "tag": userget, "xp": serverstats["xp_per_message"], "rank": 1, "background": " ", "circle": False, "xp_colour": "#ffffff", "name": f"{ctx.author}", "pfp": f"{ctx.author.avatar_url}", "warnings": 0}
                 print(f"User: {ctx.author.id} has been added to the database! ")
                 levelling.insert_one(newuser)
             else:
