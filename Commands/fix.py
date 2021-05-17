@@ -31,7 +31,7 @@ class fix(commands.Cog):
         if type == "users".lower():
             for member in ctx.guild.members:
                 counter += 1
-                levelling.update_one({"name": f"{member}", "guildid": ctx.guild.id}, {"$set": {"guildid": ctx.guild.id, "warnings": 0}})
+                levelling.update_one({"name": f"{member}", "guildid": ctx.guild.id}, {"$set": {"tag": f"<@{member.id}>", "guildid": ctx.guild.id, "warnings": 0}})
                 embed = discord.Embed(title=f":white_check_mark: Fixed User | {counter}/{ctx.guild.member_count}", description=f"{member}",
                                       colour=config['success_embed_colour'])
                 await msg.edit(embed=embed)
@@ -48,7 +48,7 @@ class fix(commands.Cog):
         elif type == "kingdoms".lower():
             for member in ctx.guild.members:
                 counter += 1
-                levelling.update_one({"name": f"{member}", "guildid": ctx.guild.id}, {"$set": {"healPotions": 0, "coins": 0, "wins": 0, "loses": 0, "ratio": 0}})
+                levelling.update_one({"name": f"{member}", "guildid": ctx.guild.id}, {"$set": {"healPotions": 0, "coins": 0}})
                 embed = discord.Embed(title=f":white_check_mark: Fixed User For Kingdoms | {counter}/{ctx.guild.member_count}", description=f"{member}",
                                       colour=config['success_embed_colour'])
                 await msg.edit(embed=embed)
