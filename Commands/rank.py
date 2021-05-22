@@ -24,6 +24,7 @@ class rank(commands.Cog):
             user = member
         userget = user.replace('!', '')
         stats = levelling.find_one({"guildid": ctx.message.guild.id, "tag": userget})
+        server = levelling.find_one({"guildid": ctx.guild.id})
         if stats is None:
             embed = discord.Embed(description=":x: No Data Found!",
                                   colour=config['error_embed_colour'])
@@ -37,7 +38,7 @@ class rank(commands.Cog):
                     break
                 lvl += 1
             xp -= ((config['xp_per_level'] / 2 * (lvl - 1) ** 2) + (config['xp_per_level'] / 2 * (lvl - 1)))
-            rankings = levelling.find().sort("xp", -1)
+            rankings = levelling.find({"guildid": ctx.guild.id}).sort("xp", -1)
             for x in rankings:
                 rank += 1
                 if stats["id"] == x["id"]:
@@ -48,7 +49,7 @@ class rank(commands.Cog):
             background = stats2["background"]
             circle = stats2["circle"]
             xpcolour = stats2["xp_colour"]
-            member = ctx.author
+            member = ctx.author.id
             gen_card = await vac_api.rank_card(
                 username=str(stats2['name']),
                 avatar=stats['pfp'],
