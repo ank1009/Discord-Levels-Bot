@@ -25,12 +25,19 @@ class addxp(commands.Cog):
             user = member
         userget = user.replace('!', '')
         stats = levelling.find_one({"guildid": ctx.guild.id, "tag": userget})
+        xpamount = int(xpamount)
         if xpamount:
-            xp = stats["xp"]
-            levelling.update_one({"guildid": ctx.guild.id, "tag": userget}, {"$set": {"xp": xp + int(xpamount)}})
-            embed = discord.Embed(title=":white_check_mark: **ADDED XP!**",
-                                  description=f"Added `{xpamount}xp` To: {userget}")
-            await ctx.channel.send(embed=embed)
+            if xpamount >= 10000:
+                embed = discord.Embed(title=":x: **SOMETHING WENT WRONG!**",
+                                      description=f"`{xpamount}` is too high! Please use a number less than `10,000`!")
+                await ctx.send(embed=embed)
+                return
+            else:
+                xp = stats["xp"]
+                levelling.update_one({"guildid": ctx.guild.id, "tag": userget}, {"$set": {"xp": xp + int(xpamount)}})
+                embed = discord.Embed(title=":white_check_mark: **ADDED XP!**",
+                                      description=f"Added `{xpamount}xp` To: {userget}")
+                await ctx.channel.send(embed=embed)
         elif xpamount is None:
             embed3 = discord.Embed(title=":x: **SOMETHING WENT WRONG!**",
                                    description="Please make sure you entered an integer.")
