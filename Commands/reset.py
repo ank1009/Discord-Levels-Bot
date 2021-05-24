@@ -17,6 +17,7 @@ class reset(commands.Cog):
     # Reset Command
     @commands.command()
     @commands.has_permissions(administrator=True)
+    @commands.guild_only()
     async def reset(self, ctx, user=None):
         if user:
             userget = user.replace('!', '')

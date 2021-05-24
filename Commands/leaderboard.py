@@ -17,6 +17,7 @@ class leaderboard(commands.Cog):
 
     # Leaderboard Command
     @commands.command(aliases=config['leaderboard_alias'])
+    @commands.guild_only()
     async def leaderboard(self, ctx):
         rankings = levelling.find({"guildid": ctx.guild.id}).sort("xp", -1)
         i = 1

@@ -15,6 +15,7 @@ class xpcolour(commands.Cog):
         self.client = client
 
     @commands.command()
+    @commands.guild_only()
     async def xpcolour(self, ctx, colour=None):
         await ctx.message.delete()
         if colour:

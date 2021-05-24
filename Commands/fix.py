@@ -16,6 +16,7 @@ class fix(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
+    @commands.guild_only()
     async def fix(self, ctx, type=None):
         counter = 0
         if type is None:
@@ -31,8 +32,14 @@ class fix(commands.Cog):
         if type == "users".lower():
             for member in ctx.guild.members:
                 counter += 1
+
+                current_user = counter
+                total_users = ctx.guild.member_count
+
+                percentage = str(
+                    int((current_user / total_users) * 100)) + "%"
                 levelling.update_one({"name": f"{member}", "guildid": ctx.guild.id}, {"$set": {"tag": f"<@{member.id}>", "guildid": ctx.guild.id, "warnings": 0}})
-                embed = discord.Embed(title=f":white_check_mark: Fixed User | {counter}/{ctx.guild.member_count}", description=f"{member}",
+                embed = discord.Embed(title=f":white_check_mark: Fixed User | {counter}/{ctx.guild.member_count} | {percentage}", description=f"{member}",
                                       colour=config['success_embed_colour'])
                 await msg.edit(embed=embed)
             embed = discord.Embed(title=f":white_check_mark: | Fixed User | {counter}/{ctx.guild.member_count}", description="Fixing has completed.")

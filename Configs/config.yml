@@ -41,7 +41,7 @@ leaderboard_alias: ['lb', 'leader', 'rankings']
 rank_alias: ['r', 'level', 'l', 'stats', 'xp', 'progress']
 
 # Sends a ping to the user that levelled up
-level_up_ping: True
+level_up_ping: False
 
 
 # ======================================================================================

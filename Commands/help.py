@@ -17,6 +17,7 @@ class help(commands.Cog):
 
     # Help Command
     @commands.command(aliase="h")
+    @commands.guild_only()
     async def help(self, ctx):
         if config['help_command'] is True:
             prefix = config['Prefix']
@@ -72,8 +73,11 @@ class help(commands.Cog):
             mutetime = discord.Embed(title=":book: Help Journal | MUTE TIME | Admin",
                                         description=f"Command:\n`{prefix}mutetime <seconds>`\n\nAbout:\nThe `mutetime` command will allow you to set how long you get muted for from Anti-Spam. *Admin Only*\n\n***REACT BELOW TO SWITCH PAGES***",
                                         colour=0xc54245)
-            contents = [home, rank, leaderboard, background, circlepicture, xpcolour, reset, xp, fix, levelchannel, doublexp, roles, antispamstats, antispam, warningmessages, mutemessages, mutedrole, ignoredrole, mutetime]
-            pages = 19
+            event = discord.Embed(title=":book: Help Journal | EVENT | Owner",
+                                     description=f"Command:\n`{prefix}event <Easter|Summer|Halloween|Christmas> <start|end>`\n\nAbout:\nThe `event` command will enable bot wide special events for certain seasons! *Owner Only*\n\n***REACT BELOW TO SWITCH PAGES***",
+                                     colour=0xc54245)
+            contents = [home, rank, leaderboard, background, circlepicture, xpcolour, reset, xp, fix, levelchannel, doublexp, roles, antispamstats, antispam, warningmessages, mutemessages, mutedrole, ignoredrole, mutetime, event]
+            pages = 20
             cur_page = 1
             message = await ctx.send(embed=contents[cur_page - 1])
 

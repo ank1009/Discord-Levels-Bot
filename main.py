@@ -3,7 +3,8 @@ import asyncio
 from os import listdir
 
 from discord.ext import commands
-from discord.ext.commands import CommandNotFound, MissingRequiredArgument, CommandInvokeError, MissingRole
+from discord.ext.commands import CommandNotFound, MissingRequiredArgument, CommandInvokeError, MissingRole, \
+    NoPrivateMessage
 import discord
 from ruamel.yaml import YAML
 import logging
@@ -18,7 +19,8 @@ with open("Configs/config.yml", "r", encoding="utf-8") as file:
     config = yaml.load(file)
 with open("Configs/spamconfig.yml", "r", encoding="utf-8") as file2:
     spamconfig = yaml.load(file2)
-
+with open("Configs/holidayconfig.yml", "r", encoding="utf-8") as file3:
+    seasonconfig = yaml.load(file3)
 
 # Command Prefix + Removes the default discord.py help command
 client = commands.Bot(command_prefix=config['Prefix'], intents=discord.Intents.all(), case_insensitive=True)
@@ -64,11 +66,16 @@ async def on_command_error(ctx, error):
         return
     if isinstance(error, PermissionError):
         logging.error('A user has missing permissions!')
+        return
     if isinstance(error, KeyError):
         logging.error('Key Error')
         return
     if isinstance(error, TypeError):
         logging.error('Type Error - Probably caused as server was being registered while anti-spam or double-xp tried triggering')
+        return
+    if isinstance(error, NoPrivateMessage):
+        logging.error("Command isn't allowed in private messages!")
+        return 
     raise error
 
 logging.info("------------- Loading -------------")
@@ -84,6 +91,10 @@ if spamconfig['antispam_system'] is True:
     logging.info(f"Loading Anti-Spam System")
     client.load_extension("Systems.spamsys")
     logging.info(f"Loaded Anti-Spam System")
+if seasonconfig['seasonal_mode'] is True:
+    logging.info(f"Loading Holiday System")
+    client.load_extension("Systems.holidaysys")
+    logging.info(f"Loaded Holiday System")
 logging.info("------------- Finished Loading -------------")
 
 # Uses the bot token to login, so don't remove this.

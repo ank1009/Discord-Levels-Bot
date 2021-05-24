@@ -15,6 +15,7 @@ class background(commands.Cog):
         self.client = client
 
     @commands.command()
+    @commands.guild_only()
     async def background(self, ctx, link=None):
         await ctx.message.delete()
         if link:

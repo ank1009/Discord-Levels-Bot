@@ -15,6 +15,7 @@ class circlepic(commands.Cog):
         self.client = client
 
     @commands.command()
+    @commands.guild_only()
     async def circlepic(self, ctx, value=None):
         await ctx.message.delete()
         if value == "True":

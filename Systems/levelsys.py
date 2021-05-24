@@ -1,5 +1,4 @@
 # Imports
-import asyncio
 import discord
 from discord.ext import commands
 from pymongo import MongoClient
@@ -24,6 +23,8 @@ with open("Configs/config.yml", "r", encoding="utf-8") as file:
     config = yaml.load(file)
 with open("Configs/spamconfig.yml", "r", encoding="utf-8") as file2:
     spamconfig = yaml.load(file2)
+with open("Configs/holidayconfig.yml", "r", encoding="utf-8") as file2:
+    holidayconfig = yaml.load(file2)
 
 
 # Vac-API, no need for altering!
@@ -53,9 +54,9 @@ class levelsys(commands.Cog):
                 channel = discord.utils.get(member.guild.channels, name="private")
                 await channel.send(f" Hey!\n\n You will only see this message **once**.\n To change the channel where levelup messages get sent to:\n\n`{prefix}levelchannel <channelname>` -- Please do NOT use the hashtag and enter any -'s!\n\nYou can also set a role which earns 2x XP by doing the following:\n\n`{prefix}doublexp <rolename>`\n\nYou can also add or remove roles after levelling up by doing the following\n\n`{prefix}role <add|remove> <level> <rolename>`\n\nYou can also change how much xp you earn per message by doing:\n\n`{prefix}xppermessage <amount>`\n\nFor help with commands:\n\n`{prefix}help` ")
             if stats is None:
-                user = f"<@!{ctx.author.id}>"
-                userget = user.replace('!', '')
-                newuser = {"guildid": ctx.guild.id, "id": ctx.author.id, "tag": userget, "xp": serverstats["xp_per_message"], "rank": 1, "background": " ", "circle": False, "xp_colour": "#ffffff", "name": f"{ctx.author}", "pfp": f"{ctx.author.avatar_url}", "warnings": 0}
+                member = ctx.author
+                user = f"<@{member.id}>"
+                newuser = {"guildid": ctx.guild.id, "id": ctx.author.id, "tag": user, "xp": serverstats["xp_per_message"], "rank": 1, "background": " ", "circle": False, "xp_colour": "#ffffff", "name": f"{ctx.author}", "pfp": f"{ctx.author.avatar_url}", "warnings": 0}
                 print(f"User: {ctx.author.id} has been added to the database! ")
                 levelling.insert_one(newuser)
             else:
@@ -64,12 +65,12 @@ class levelsys(commands.Cog):
                     xp = stats["xp"]
                     levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id}, {"$set": {"xp": xp}})
                 else:
-                    stats = levelling.find_one({"server": ctx.guild.id})
-                    if stats is None:
-                        return
-                    else:
-                        user = ctx.author
-                        role = discord.utils.get(ctx.guild.roles, name=serverstats["double_xp_role"])
+                    if serverstats["event"] == "Started":
+                        stats = levelling.find_one({"guildid": ctx.guild.id, "id": ctx.author.id})
+                        xp = stats['xp'] + serverstats['xp_per_message'] * holidayconfig['bonus_xp']
+                        levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id}, {"$set": {"xp": xp}})
+                    user = ctx.author
+                    role = discord.utils.get(ctx.guild.roles, name=serverstats["double_xp_role"])
                     if role in user.roles:
                         stats = levelling.find_one({"guildid": ctx.guild.id, "id": ctx.author.id})
                         xp = stats["xp"] + serverstats['xp_per_message'] * 2
@@ -78,6 +79,7 @@ class levelsys(commands.Cog):
                         stats = levelling.find_one({"guildid": ctx.guild.id, "id": ctx.author.id})
                         xp = stats["xp"] + serverstats['xp_per_message']
                         levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id}, {"$set": {"xp": xp}})
+
                 lvl = 0
                 while True:
                     if xp < ((config['xp_per_level'] / 2 * (lvl ** 2)) + (config['xp_per_level'] / 2 * lvl)):

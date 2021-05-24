@@ -18,6 +18,7 @@ class removexp(commands.Cog):
     # Rank Command
     @commands.command()
     @commands.has_permissions(administrator=True)
+    @commands.guild_only()
     async def removexp(self, ctx, xpamount=None, member=None):
         if member is None:
             user = f"<@!{ctx.author.id}>"
