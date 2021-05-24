@@ -40,19 +40,6 @@ class levelsys(commands.Cog):
         stats = levelling.find_one({"guildid": ctx.guild.id, "id": ctx.author.id})
         serverstats = levelling.find_one({"server": ctx.guild.id})
         if not ctx.author.bot:
-            if serverstats is None:
-                member = ctx.author
-                newserver = {"server": ctx.guild.id, "xp_per_message": 10, "double_xp_role": "NA", "level_channel": "private", "Antispam": False, "mutedRole": "Muted", "mutedTime": 300, "warningMessages": 5, "muteMessages": 6, "ignoredRole": "Ignored"}
-                overwrites = {
-                    ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
-                    ctx.guild.me: discord.PermissionOverwrite(read_messages=True)
-                }
-                await ctx.guild.create_text_channel('private', overwrites=overwrites)
-                levelling.insert_one(newserver)
-                serverstat = levelling.find_one({"server": ctx.guild.id})
-                prefix = config['Prefix']
-                channel = discord.utils.get(member.guild.channels, name="private")
-                await channel.send(f" Hey!\n\n You will only see this message **once**.\n To change the channel where levelup messages get sent to:\n\n`{prefix}levelchannel <channelname>` -- Please do NOT use the hashtag and enter any -'s!\n\nYou can also set a role which earns 2x XP by doing the following:\n\n`{prefix}doublexp <rolename>`\n\nYou can also add or remove roles after levelling up by doing the following\n\n`{prefix}role <add|remove> <level> <rolename>`\n\nYou can also change how much xp you earn per message by doing:\n\n`{prefix}xppermessage <amount>`\n\nFor help with commands:\n\n`{prefix}help` ")
             if stats is None:
                 member = ctx.author
                 user = f"<@{member.id}>"
@@ -133,6 +120,26 @@ class levelsys(commands.Cog):
                                 print(f"User: {ctx.author} | Unlocked Role: {level_roles[i]}")
                                 embed.set_thumbnail(url=ctx.author.avatar_url)
                                 await msg.edit(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        serverstats = levelling.find_one({"server": guild.id})
+        if serverstats is None:
+            newserver = {"server": guild.id, "xp_per_message": 10, "double_xp_role": "NA",
+                         "level_channel": "private",
+                         "Antispam": False, "mutedRole": "Muted", "mutedTime": 300, "warningMessages": 5,
+                         "muteMessages": 6,
+                         "ignoredRole": "Ignored", "event": "Ended"}
+            overwrites = {
+                guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                guild.me: discord.PermissionOverwrite(read_messages=True)
+            }
+            await guild.create_text_channel('private', overwrites=overwrites)
+            levelling.insert_one(newserver)
+            prefix = config['Prefix']
+            channel = discord.utils.get(guild.channels, name="private")
+            await channel.send(
+                f" Hey!\n\n You will only see this message **once**.\n To change the channel where levelup messages get sent to:\n\n`{prefix}levelchannel <channelname>` -- Please do NOT use the hashtag and enter any -'s!\n\nYou can also set a role which earns 2x XP by doing the following:\n\n`{prefix}doublexp <rolename>`\n\nYou can also add or remove roles after levelling up by doing the following\n\n`{prefix}role <add|remove> <level> <rolename>`\n\nYou can also change how much xp you earn per message by doing:\n\n`{prefix}xppermessage <amount>`\n\nFor help with commands:\n\n`{prefix}help` ")
 
 
 def setup(client):

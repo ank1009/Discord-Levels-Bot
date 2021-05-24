@@ -61,6 +61,12 @@ class fix(commands.Cog):
                 await msg.edit(embed=embed)
             embed = discord.Embed(title=f":white_check_mark: | Fixed Kingdoms | {counter}/{ctx.guild.member_count}", description="Fixing has completed.")
             await msg.edit(embed=embed)
+        elif type == "servers".lower():
+            for guild in self.client.guilds:
+                stats = levelling.find({"server": guild.id})
+                for doc in stats:
+                    levelling.update_many({"server": guild.id}, {"$set": {"event": "Ended"}})
+                return
 
 
 
