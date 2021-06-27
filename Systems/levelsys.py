@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from ruamel.yaml import YAML
 import vacefron
 import os
+import re
 from dotenv import load_dotenv
 
 # Loads the .env file and gets the required information
@@ -66,6 +67,20 @@ class levelsys(commands.Cog):
                         stats = levelling.find_one({"guildid": ctx.guild.id, "id": ctx.author.id})
                         xp = stats["xp"] + serverstats['xp_per_message']
                         levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id}, {"$set": {"xp": xp}})
+
+                guild = ctx.guild
+                member = ctx.author
+                for role in member.roles:
+                    x = re.search("@clan", str(role))
+                    if x:
+                        for member in guild.members:
+                            role_name = discord.utils.get(ctx.guild.roles, name=role)
+                            if role_name in member.roles:
+                                stats = levelling.find_one({"guildid": ctx.guild.id, "id": ctx.member.id})
+                                xp = stats['xp'] + serverstats['xp_per_message']
+                                levelling.update_one({"guildid": ctx.guild.id, "id": ctx.author.id},
+                                                     {"$set": {"xp": xp}})
+                                return
 
                 lvl = 0
                 while True:
@@ -141,6 +156,13 @@ class levelsys(commands.Cog):
             await channel.send(
                 f" Hey!\n\n You will only see this message **once**.\n To change the channel where levelup messages get sent to:\n\n`{prefix}levelchannel <channelname>` -- Please do NOT use the hashtag and enter any -'s!\n\nYou can also set a role which earns 2x XP by doing the following:\n\n`{prefix}doublexp <rolename>`\n\nYou can also add or remove roles after levelling up by doing the following\n\n`{prefix}role <add|remove> <level> <rolename>`\n\nYou can also change how much xp you earn per message by doing:\n\n`{prefix}xppermessage <amount>`\n\nFor help with commands:\n\n`{prefix}help` ")
 
+    @commands.Cog.listener()
+    async def on_guild_leave(self, ctx, guild):
+        userstats = levelling.find_one({"guildid": guild.id, "id": ctx.author.id})
+        if userstats is None:
+            return
+        else:
+            levelling.delete_one({"guildid": ctx.guild.id, "id": ctx.author.id})
 
 def setup(client):
     client.add_cog(levelsys(client))
