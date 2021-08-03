@@ -34,7 +34,7 @@ class xppermessage(commands.Cog):
             elif xp:
                 if int(xp) > 100:
                     embed2 = discord.Embed(title=f":x: SETUP FAILED",
-                                           description=f"Must be less than or equal to `100`! `{xp}` is `{int(xp) - 100}` too much!",
+                                           description=f"Must be less that `100`! `{xp}` is `{int(xp) - 100}` too much!",
                                            colour=config['error_embed_colour'])
                     await ctx.send(embed=embed2)
                 else:

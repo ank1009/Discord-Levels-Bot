@@ -82,20 +82,30 @@ async def on_command_error(ctx, error):
 logging.info("------------- Loading -------------")
 for fn in listdir("Commands"):
     if fn.endswith(".py"):
-        logging.info(f"Loading {fn}")
+        logging.info(f"Loading: {fn}")
         client.load_extension(f"Commands.{fn[:-3]}")
         logging.info(f"Loaded {fn}")
+
+for fn in listdir("Addons"):
+    if fn.endswith(".py"):
+        logging.info(f"Loading: {fn} Addon")
+        client.load_extension(f"Addons.{fn[:-3]}")
+        logging.info(f"Loaded {fn} Addon")
+
 logging.info(f"Loading Level System")
 client.load_extension("Systems.levelsys")
 logging.info(f"Loaded Level System")
+
 if spamconfig['antispam_system'] is True:
     logging.info(f"Loading Anti-Spam System")
     client.load_extension("Systems.spamsys")
     logging.info(f"Loaded Anti-Spam System")
+
 if seasonconfig['seasonal_mode'] is True:
     logging.info(f"Loading Holiday System")
     client.load_extension("Systems.holidaysys")
     logging.info(f"Loaded Holiday System")
+
 logging.info("------------- Finished Loading -------------")
 
 # Uses the bot token to login, so don't remove this.

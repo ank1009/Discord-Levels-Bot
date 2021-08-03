@@ -1,5 +1,8 @@
+import traceback
+
 import discord
-from discord.ext import commands
+from discord.ext import commands, menus
+from discord.ext.menus import ListPageSource, MenuPages
 from ruamel.yaml import YAML
 
 # Reads the config file, no need for changing.
@@ -37,7 +40,6 @@ class leaderboard(commands.Cog):
             if i == config['leaderboard_amount'] + 1:
                 break
         await ctx.channel.send(embed=embed)
-
 
 # Sets-up the cog for help
 def setup(client):

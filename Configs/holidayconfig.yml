@@ -9,9 +9,6 @@ seasonal_mode: True
 # The amount of extra xp a user receives
 bonus_xp: 1.5
 
-# The ID of the user who owns this bot (In most cases, that'll be you)
-bot_owner_id: 512760269764820993
-
 
 # ======================================================================================
 #                                    Dates
@@ -21,7 +18,7 @@ bot_owner_id: 512760269764820993
 easter_end_date: "May 1st"
 
 # When do you expect to end the summer event? (DAY MONTH - Don't worry about year, it's already handled for you)
-summer_end_date: "June 1st"
+summer_end_date: "August 1st"
 
 # When do you expect to end the summer event? (DAY MONTH - Don't worry about year, it's already handled for you)
 halloween_end_date: "November 1st"

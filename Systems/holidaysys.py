@@ -11,6 +11,8 @@ from Systems.levelsys import levelling
 yaml = YAML()
 with open("Configs/holidayconfig.yml", "r", encoding="utf-8") as file:
     config = yaml.load(file)
+with open("Configs/config.yml", "r", encoding="utf-8") as file2:
+    config2 = yaml.load(file2)
 
 current_month = datetime.now().month
 current_day = datetime.now().day
@@ -31,7 +33,7 @@ class seasonsys(commands.Cog):
     @commands.guild_only()
     @commands.command()
     async def event(self, ctx, holiday=None, state=None):
-        if ctx.message.author.id != config['bot_owner_id']:
+        if ctx.message.author.id != config2['bot_owner_id']:
             return
         else:
             if holiday == "Christmas":
