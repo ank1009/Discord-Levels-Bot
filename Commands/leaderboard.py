@@ -1,8 +1,7 @@
 import traceback
 
 import discord
-from discord.ext import commands, menus
-from discord.ext.menus import ListPageSource, MenuPages
+from discord.ext import commands
 from ruamel.yaml import YAML
 
 # Reads the config file, no need for changing.
