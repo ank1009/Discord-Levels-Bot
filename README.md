@@ -2,15 +2,13 @@
 <p align="center">
   <a href="https://discord.gg/E56eZdNjK4">
     <img src="https://discordapp.com/api/guilds/809362745354354688/widget.png?style=shield" alt="Discord Server">
-  <a href="https://www.python.org/downloads/">
-    <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/Red-Discordbot">
   </a>
 	  </p>
 
 <p align="center">
 	  Welcome to Modern Levels  </p>
 
-Please be aware of a few things. You will be required to have a `MongoDB` Database for this to work. Please also keep in mind that there are currently **2** branches, ``Main & Beta``. 
+Please be aware of a few things. You must use `Python v3.5` and up. You will also be required to have a `MongoDB` Database for this to work. Please also keep in mind that there are currently **2** branches, ``Main & Beta``. 
 	  
 *Running into problems? Want to submit a bug report or suggestion? Join our [Support Server](https://discord.gg/E56eZdNjK4)*
 
@@ -29,5 +27,5 @@ The Rank Card contains the following:
 *`Addons` are fast ways to add features to the bot without writing any code. More Addons are to come!*
 | Name   | Information | Download |
 | ------------- | ------------- | ------------- |
-| Extras+ | Includes command for adding or removing xp from a user. Also includes a Help command.  | [v1.0.0](https://www.dropbox.com/s/37qmb4w4sp18in6/Extras%2B.zip?dl=1)|
-| Profile+  | Lets the user change their Background, XP Colour and if their profile picture is circular or not.  | [v1.0.0](https://www.dropbox.com/s/8rdg844qo1x1s76/Profile%2B.zip?dl=1) |
+| Extras+ | Includes command for adding or removing xp from a user. Also includes a Help command.  | [v1.0.1](https://www.dropbox.com/s/37qmb4w4sp18in6/Extras%2B.zip?dl=1)|
+| Profile+  | Lets the user change their Background, XP Colour and if their profile picture is circular or not.  | [v1.0.1](https://www.dropbox.com/s/8rdg844qo1x1s76/Profile%2B.zip?dl=1) |
