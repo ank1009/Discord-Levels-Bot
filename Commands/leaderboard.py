@@ -22,9 +22,9 @@ class leaderboard(commands.Cog):
     @commands.guild_only()
     async def leaderboard(self, ctx):
         rankings = levelling.find({"guildid": ctx.guild.id}).sort("xp", -1)
-        i = 1
         con = config['leaderboard_amount']
         embed = discord.Embed(title=f":trophy: Leaderboard | Top {con}", colour=config['leaderboard_embed_colour'])
+        i = 1
         for x in rankings:
             try:
                 temp = ctx.guild.get_member(x["id"])
@@ -32,8 +32,8 @@ class leaderboard(commands.Cog):
                 templvl = x["rank"]
                 embed.add_field(name=f"#{i}: {temp.name}",
                                 value=f"Level: `{templvl}`\nTotal XP: `{tempxp}`\n", inline=True)
-                embed.set_thumbnail(url=config['leaderboard_image'])
                 i += 1
+                embed.set_thumbnail(url=ctx.guild.icon_url)
             except:
                 pass
             if i == config['leaderboard_amount'] + 1:
