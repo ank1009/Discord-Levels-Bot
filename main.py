@@ -14,7 +14,7 @@ from Systems.levelsys import levelling
 
 load_dotenv()
 
-# Opens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless having issues with ruamel)
+# Oens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless having issues with ruamel)
 yaml = YAML()
 with open("Configs/config.yml", "r", encoding="utf-8") as file:
     config = yaml.load(file)
